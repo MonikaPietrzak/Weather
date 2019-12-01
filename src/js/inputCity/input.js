@@ -3,46 +3,35 @@ import axios from 'axios';
 export function test() {
     console.log('działam');
 }
-//Wpisz swój klucz do api google
-const apiKey = "AIzaSyBrmu53UCOZERlv7TtHakd-lFs_UFWxpy4";
-const googlePlacesApiUrl = "https://maps.googleapis.com/maps/api/place/autocomplete/json?input=Vict&types=(cities)&language=pl&key=" + apiKey;
-
+var googlePlacesAutocompleteService = new google.maps.places.AutocompleteService();
 // function autocomplete(input, cities) {
 
 // }
 
-const cities = ['kalisz', 'torun', 'poznan', 'warszawa', 'wroclaw', 'wielun', 'kamieniec', 'twardogora'];
 
 const myPromise = new Promise((resolve, reject) => {
     resolve(cities);
 })
 
 
-//Dodać addEventListener za każdym razem jak jest wpisana litera
-//W addEventListener jest wywoływana funkcja pobierająca wartośc inputa
 let myInput = document.getElementById("cityInput");
-myInput.addEventListener("keydown", function () {
+myInput.addEventListener("keyup", function () {
     let inputValue = document.getElementById("cityInput").value;
 
+    if (inputValue.length >= 3) {
+        googlePlacesAutocompleteService.getQueryPredictions({
+            input: inputValue
+        }, showAutocompleteList.bind(this));
+    }
 
-    //Symulacja strzału do api pobraną wartością z inputa - w odp bedzie tablica
-
-
-
-    //Wyświetlenie listy miast na sztywno - po każdym wpisaniu zeby sie cala lista pokazala
-    //po kliknięciu w podpowiedz podmiana wartosci inputa 
-
-    axios.get(googlePlacesApiUrl).then(showAutocompleteList.bind(this));
-    //dodac new promise, ktory zawsze bedzie zwracal resolve tablice. Jak promise sie wykona ...
-    //tutaj wywołanie promisa
 });
 
-function showAutocompleteList(cities) {
+function showAutocompleteList(citiesPredictions, status) {
     removeCitiesBoxChildren();
     var citiesBox = document.getElementById("citiesBox");
-    for (const city of cities) {
+    for (const city of citiesPredictions) {
         let cityDiv = document.createElement("div");
-        cityDiv.innerHTML = city;
+        cityDiv.innerHTML = city.description;
         cityDiv.addEventListener('click', cityDivOnClick);
         citiesBox.appendChild(cityDiv);
     }
